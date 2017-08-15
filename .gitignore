@@ -156,3 +156,7 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+
+# Others
+static/js/bundle.js
