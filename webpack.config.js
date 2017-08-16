@@ -1,24 +1,39 @@
 const path = require('path');
+const webpack = require('webpack');
+const ManifestPlugin = require('webpack-manifest-plugin');
 
-module.exports = {
+const config = {
     entry: './src/main.tsx',
     output: {
         path: path.resolve(path.join(__dirname, 'static', 'js')),
-        filename: 'bundle.js'
+        filename: 'main.js'
     },
     resolve: {
-        extensions: ['.tsx', '.js']
+        extensions: ['.tsx', '.ts', '.js']
     },
     module: {
         loaders: [
             {
                 test: /\.tsx?$/,
-                use: {
-                    loader: 'ts-loader',
-                    options: {
-                    }
-                }
+                use: 'ts-loader',
+                exclude: /node_modules/
             }
         ]
     }
 };
+if (process.env.NODE_ENV === 'production') {
+    config.output.filename = 'main.[hash].js'
+    config.plugins = [
+        new webpack.DefinePlugin({
+            'process.env': {
+                NODE_ENV: JSON.stringify('production')
+            }
+        }),
+        new webpack.optimize.UglifyJsPlugin(),
+        new ManifestPlugin({
+
+        })
+    ];
+}
+
+module.exports = config;
