@@ -2,15 +2,26 @@
   "name": "tf-face-detector-app",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "",
   "scripts": {
+    "start": "webpack-dev-server",
     "install": "webpack"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/react": "^16.0.2",
+    "@types/react-dom": "^15.5.3",
     "materialize-css": "^0.100.1",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
+    "ts-loader": "^2.3.2",
     "webpack": "^3.5.4"
+  },
+  "devDependencies": {
+    "tslint": "^5.6.0",
+    "typescript": "^2.4.2",
+    "webpack-dev-server": "^2.7.1"
   }
 }
