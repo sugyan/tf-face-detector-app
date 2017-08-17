@@ -1,12 +1,27 @@
 import * as React from "react";
+import { connect } from "react-redux";
+import { Dispatch } from "redux";
 
-export default class Form extends React.Component<{}, {}> {
+import { ActionDispatcher, AppActions } from "../redux/actions";
+import { IDetectorState } from "../redux/reducers";
+
+interface IProps {
+    actions: ActionDispatcher;
+}
+interface IState {
+    filename: string;
+}
+
+class Form extends React.Component<IProps, IState> {
 
     private input: HTMLInputElement;
 
-    public constructor(props: {}) {
+    public constructor(props: IProps) {
         super(props);
         this.handleChangeFile = this.handleChangeFile.bind(this);
+        this.state = {
+            filename: "",
+        };
     }
 
     public render(): JSX.Element {
@@ -18,7 +33,7 @@ export default class Form extends React.Component<{}, {}> {
                   <input type="file" onChange={this.handleChangeFile} />
                 </div>
                 <div className="file-path-wrapper">
-                  <input className="file-path validate" type="text" value="" />
+                  <input className="file-path validate" type="text" value={this.state.filename} />
                 </div>
               </div>
             </form>
@@ -31,18 +46,24 @@ export default class Form extends React.Component<{}, {}> {
             return;
         }
         const file: File = files[0];
+        this.setState({
+            filename: file.name,
+        });
+
         const reader: FileReader = new FileReader();
         reader.onload = (event: Event) => {
             // cannot retrieve event.target.result...
-            const image: HTMLImageElement = new Image();
-            image.onload = (ev: Event) => {
-                console.log(image);
-            };
-            image.onerror = (ev: Event) => {
-                window.console.error(ev);
-            };
-            image.src = reader.result;
+            this.props.actions.setImage(reader.result);
         };
         reader.readAsDataURL(file);
     }
 }
+
+export default connect(
+    (state: IDetectorState) => state,
+    (dispatch: Dispatch<AppActions>) => {
+        return {
+            actions: new ActionDispatcher(dispatch),
+        };
+    },
+)(Form);
