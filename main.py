@@ -21,11 +21,9 @@ tf.import_graph_def(graph_def, name='')
 sess = tf.Session()
 encoded_image = sess.graph.get_tensor_by_name('encoded_image_string_tensor:0')
 fetches = {
-    'image': tf.image.decode_jpeg(tf.squeeze(encoded_image)),
     'boxes': sess.graph.get_tensor_by_name('detection_boxes:0'),
     'scores': sess.graph.get_tensor_by_name('detection_scores:0'),
     'classes': sess.graph.get_tensor_by_name('detection_classes:0'),
-    'num_detections': sess.graph.get_tensor_by_name('num_detections:0'),
 }
 
 manifest_path = os.path.join(os.path.dirname(__file__), 'static', 'js', 'manifest.json')
