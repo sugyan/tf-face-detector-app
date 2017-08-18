@@ -1,27 +1,48 @@
 import { Action } from "redux";
 
-export enum ActionNames {
-  SET_IMAGE = "SET_IMAGE",
+import { IDetected } from "../interfaces/detector";
+
+export enum ActionTypes {
+    RESET        = "RESET",
+    SET_IMAGE    = "SET_IMAGE",
+    SET_DETECTED = "SET_DETECTED",
 }
 
-interface ISetImageAction extends Action {
-    image: string;
+interface IReset {
+    type: ActionTypes.RESET;
+}
+interface ISetImageAction {
+    image: HTMLImageElement;
+    type: ActionTypes.SET_IMAGE;
+}
+interface ISetDetectedAction {
+    detected: IDetected[];
+    type: ActionTypes.SET_DETECTED;
 }
 
-export type AppActions = ISetImageAction;
-
-const setImage = (image: string): ISetImageAction => {
-    return {
-        image,
-        type: ActionNames.SET_IMAGE,
-    };
-};
+export type AppActions = IReset | ISetImageAction | ISetDetectedAction;
 
 export class ActionDispatcher {
 
     constructor(private dispatch: (action: AppActions) => void) {}
 
-    public setImage(image: string) {
-        this.dispatch(setImage(image));
+    public reset(): void {
+        this.dispatch({
+            type: ActionTypes.RESET,
+        });
+    }
+
+    public setImage(image: HTMLImageElement): void {
+        this.dispatch({
+            image,
+            type: ActionTypes.SET_IMAGE,
+        });
+    }
+
+    public setDetected(detected: IDetected[]): void {
+        this.dispatch({
+            detected,
+            type: ActionTypes.SET_DETECTED,
+        });
     }
 }

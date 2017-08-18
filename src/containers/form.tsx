@@ -14,6 +14,7 @@ interface IState {
 
 class Form extends React.Component<IProps, IState> {
 
+    private sendImageSize: number = 1024;
     private input: HTMLInputElement;
 
     public constructor(props: IProps) {
@@ -41,26 +42,66 @@ class Form extends React.Component<IProps, IState> {
     }
 
     private handleChangeFile(formEvent: React.FormEvent<HTMLInputElement>): void {
+        // get file and filename
         const files: FileList | null = formEvent.currentTarget.files;
-        if (files === null) {
+        if (files === null || files.length === 0) {
             return;
         }
+        // reset view
+        this.props.actions.reset();
+
+        // read file content
         const file: File = files[0];
+        const reader: FileReader = new FileReader();
         this.setState({
             filename: file.name,
         });
-
-        const reader: FileReader = new FileReader();
         reader.onload = (event: Event) => {
             // cannot retrieve event.target.result...
-            this.props.actions.setImage(reader.result);
+            const image: HTMLImageElement = new Image();
+            image.crossOrigin = "anonymous";
+            image.onload = (ev: Event): void => {
+                // update canvas
+                this.props.actions.setImage(image);
+
+                // send data
+                const scale: number = Math.max(
+                    image.width  / this.sendImageSize,
+                    image.height / this.sendImageSize,
+                );
+                const w: number = image.width  / scale;
+                const h: number = image.height / scale;
+                const canvas: HTMLCanvasElement = window.document.createElement("canvas");
+                canvas.width  = w;
+                canvas.height = h;
+                const ctx: CanvasRenderingContext2D | null = canvas.getContext("2d");
+                if (ctx === null) {
+                    return;
+                }
+                ctx.drawImage(image, 0, 0, w, h);
+                fetch("/api/detect", {
+                    body: canvas.toDataURL("image/jpeg"),
+                    method: "POST",
+                }).then((res) => {
+                    return res.json();
+                }).then((json) => {
+                    this.props.actions.setDetected(json.results);
+                });
+            };
+            image.onerror = (ev: Event): void => {
+                window.console.error(ev);
+            };
+            image.src = reader.result;
+
         };
         reader.readAsDataURL(file);
     }
 }
 
 export default connect(
-    (state: IDetectorState) => state,
+    (state: IDetectorState) => {
+        return {};
+    },
     (dispatch: Dispatch<AppActions>) => {
         return {
             actions: new ActionDispatcher(dispatch),
